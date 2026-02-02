@@ -46,9 +46,9 @@ export default function Dashboard() {
       <header className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-emerald-400 to-purple-400 bg-clip-text text-transparent drop-shadow-sm">
-            ANTIGRAVITY <span className="text-slate-500 font-light">TERMINAL</span>
+            DEEP <span className="text-slate-500 font-light">CURIOSITY</span>
           </h1>
-          <p className="text-slate-400 text-sm mt-1">Market Situational Awareness / v1.1.0</p>
+          <p className="text-slate-400 text-sm mt-1">Market Intelligence / v1.1.0</p>
         </div>
         <div className="flex flex-wrap gap-4 items-center w-full md:w-auto justify-between md:justify-end">
           {/* Global Mode Switch */}
