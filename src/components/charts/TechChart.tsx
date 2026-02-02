@@ -10,6 +10,7 @@ import { ChartData } from '@/types'
 type TechChartProps = {
     ticker: string
     data: ChartData[]
+    showIndicators?: boolean
 }
 
 // --- Helpers ---
@@ -33,7 +34,7 @@ function calculateSMA(data: ChartData[], count: number) {
  * - Volume Histogram (Overlay)
  * - Simple Moving Averages (20, 50, 200)
  */
-export default function TechChart({ ticker, data }: TechChartProps) {
+export default function TechChart({ ticker, data, showIndicators = true }: TechChartProps) {
     const chartContainerRef = useRef<HTMLDivElement>(null)
     const chartRef = useRef<IChartApi | null>(null)
 
@@ -95,17 +96,19 @@ export default function TechChart({ ticker, data }: TechChartProps) {
         )
 
         // 4. SMA Overlays
-        // SMA 20 (Yellow)
-        const sma20 = chart.addSeries(LineSeries, { color: '#eab308', lineWidth: 1 })
-        sma20.setData(calculateSMA(data, 20) as any)
+        if (showIndicators) {
+            // SMA 20 (Yellow)
+            const sma20 = chart.addSeries(LineSeries, { color: '#eab308', lineWidth: 1 })
+            sma20.setData(calculateSMA(data, 20) as any)
 
-        // SMA 50 (Orange)
-        const sma50 = chart.addSeries(LineSeries, { color: '#f97316', lineWidth: 1 })
-        sma50.setData(calculateSMA(data, 50) as any)
+            // SMA 50 (Orange)
+            const sma50 = chart.addSeries(LineSeries, { color: '#f97316', lineWidth: 1 })
+            sma50.setData(calculateSMA(data, 50) as any)
 
-        // SMA 200 (Purple/Blue)
-        const sma200 = chart.addSeries(LineSeries, { color: '#3b82f6', lineWidth: 2 })
-        sma200.setData(calculateSMA(data, 200) as any)
+            // SMA 200 (Purple/Blue)
+            const sma200 = chart.addSeries(LineSeries, { color: '#3b82f6', lineWidth: 2 })
+            sma200.setData(calculateSMA(data, 200) as any)
+        }
 
         // 5. Fit & Resize
         chart.timeScale().fitContent()
@@ -121,7 +124,7 @@ export default function TechChart({ ticker, data }: TechChartProps) {
             window.removeEventListener('resize', handleResize)
             chart.remove()
         }
-    }, [data])
+    }, [data, showIndicators])
 
     return (
         <div className="w-full flex flex-col bg-slate-950 rounded-xl border border-slate-800 p-4 shadow-xl">
@@ -129,11 +132,13 @@ export default function TechChart({ ticker, data }: TechChartProps) {
                 <h3 className="text-xl font-bold text-white bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-500">
                     {ticker}
                 </h3>
-                <div className="flex gap-2 text-xs font-mono text-slate-500">
-                    <span className="text-yellow-500">SMA20</span>
-                    <span className="text-orange-500">SMA50</span>
-                    <span className="text-blue-500">SMA200</span>
-                </div>
+                {showIndicators && (
+                    <div className="flex gap-2 text-xs font-mono text-slate-500">
+                        <span className="text-yellow-500">SMA20</span>
+                        <span className="text-orange-500">SMA50</span>
+                        <span className="text-blue-500">SMA200</span>
+                    </div>
+                )}
             </div>
             <div ref={chartContainerRef} className="w-full h-[400px]" />
         </div>

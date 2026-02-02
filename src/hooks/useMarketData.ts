@@ -2,13 +2,16 @@ import { useState, useEffect } from 'react'
 import { StockNode, ChartData } from '@/types'
 import { MarketService } from '@/services/market'
 
+export type MarketType = 'stocks' | 'etfs' | 'commodities'
+
 /**
  * useMarketData Hook
  * 
- * encapsulated state management for the Dashboard.
- * Handles data fetching, loading states, and error handling (future proofing).
+ * Encapsulated state management for the Dashboard.
+ * Handles data fetching, loading states, and error handling.
  */
 export function useMarketData() {
+    const [marketType, setMarketType] = useState<MarketType>('stocks')
     const [mapData, setMapData] = useState<StockNode | null>(null)
     const [chartDataSPY, setChartDataSPY] = useState<ChartData[]>([])
     const [chartDataQQQ, setChartDataQQQ] = useState<ChartData[]>([])
@@ -20,9 +23,15 @@ export function useMarketData() {
         const loadData = async () => {
             setIsLoading(true)
             try {
-                // Parallel data fetching for performance
+                // Determine which map fetcher to use
+                let mapPromise
+                if (marketType === 'stocks') mapPromise = MarketService.getMarketMap()
+                else if (marketType === 'etfs') mapPromise = MarketService.getETFMap()
+                else mapPromise = MarketService.getCommoditiesMap()
+
+                // Parallel data fetching
                 const [map, spy, qqq, dia, watchlist] = await Promise.all([
-                    MarketService.getMarketMap(),
+                    mapPromise,
                     MarketService.getChartData('SPY'),
                     MarketService.getChartData('QQQ'),
                     MarketService.getChartData('DIA'),
@@ -42,9 +51,11 @@ export function useMarketData() {
         }
 
         loadData()
-    }, [])
+    }, [marketType])
 
     return {
+        marketType,
+        setMarketType,
         mapData,
         chartDataSPY,
         chartDataQQQ,

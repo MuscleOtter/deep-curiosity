@@ -14,8 +14,9 @@ import { StockNode } from '@/types'
 
 // Transform raw hierarchy to ECharts format
 function transformData(node: StockNode): any {
+    const isLeaf = !node.children || node.children.length === 0
     return {
-        name: node.name || node.ticker,
+        name: isLeaf ? node.ticker : (node.name || node.ticker),
         value: [node.value, node.performance, node.pe_ratio], // Value array for dimensions
         itemStyle: {
             color: node.children ? undefined : (node.performance >= 0
@@ -30,7 +31,6 @@ function calculateColor(perf: number, isPositive: boolean) {
     // Simple gradient logic matching 3D view
     // Green: #22c55e (Tailwind Green 500)
     // Red: #ef4444 (Tailwind Red 500)
-    // We can use opacity or raw hex interpolation. ECharts handles color mapping too but manual is finer.
     const intensity = Math.min(0.2 + Math.abs(perf) * 10, 0.9)
     if (isPositive) {
         return `rgba(34, 197, 94, ${intensity})`
@@ -46,7 +46,6 @@ export default function MarketTreemap2D({ data }: { data: StockNode }) {
         tooltip: {
             formatter: function (info: any) {
                 const value = info.value;
-                // ECharts treemap value might be single number for non-leaf
                 const isArray = Array.isArray(value) && value.length >= 3;
 
                 if (!isArray) {
@@ -71,7 +70,21 @@ export default function MarketTreemap2D({ data }: { data: StockNode }) {
                 visibleMin: 300,
                 label: {
                     show: true,
-                    formatter: '{b}'
+                    formatter: function (info: any) {
+                        const value = info.value;
+                        if (Array.isArray(value) && value.length >= 2) {
+                            const perf = (value[1] * 100).toFixed(2) + '%';
+                            return `{bold|${info.name}}\n${perf}`;
+                        }
+                        return info.name;
+                    },
+                    rich: {
+                        bold: {
+                            fontWeight: 'bold',
+                            fontSize: 14,
+                            lineHeight: 20
+                        }
+                    }
                 },
                 itemStyle: {
                     borderColor: '#1e293b',

@@ -1,5 +1,5 @@
 import { StockNode, ChartData } from '@/types'
-import { generateMockMapData, generateMockChartData, WATCHLIST_TICKERS } from '@/lib/mock-data'
+import { generateMockMapData, generateMockETFData, generateMockCommoditiesData, generateMockChartData, WATCHLIST_TICKERS } from '@/lib/mock-data'
 
 /**
  * MarketService
@@ -16,6 +16,22 @@ export const MarketService = {
         // Simulate network delay
         await new Promise(resolve => setTimeout(resolve, 500))
         return generateMockMapData()
+    },
+
+    /**
+     * Fetches the hierarchical ETF map data (Global -> Asset Class -> ETFs).
+     */
+    getETFMap: async (): Promise<StockNode> => {
+        await new Promise(resolve => setTimeout(resolve, 500))
+        return generateMockETFData()
+    },
+
+    /**
+     * Fetches the hierarchical Commodities map data.
+     */
+    getCommoditiesMap: async (): Promise<StockNode> => {
+        await new Promise(resolve => setTimeout(resolve, 600))
+        return generateMockCommoditiesData()
     },
 
     /**

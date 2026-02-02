@@ -4,6 +4,10 @@ export type StockNode = {
     value: number // Market Cap
     performance: number // % Change
     pe_ratio: number // Y-Axis
+    pb_ratio?: number // Price to Book
+    dividend_yield?: number // %
+    debt_to_equity?: number // Ratio
+    relative_volume?: number // 1.0 = Average, 2.0 = 2x Avg
     children?: StockNode[]
 }
 
