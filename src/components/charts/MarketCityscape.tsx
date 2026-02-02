@@ -91,8 +91,17 @@ function CityscapeMesh({ leaves, heightMetric = 'pe', colorMetric = 'performance
             const d = node.data
             if (colorMetric === 'performance') {
                 const perf = d.performance || 0
-                if (perf >= 0) color.setHSL(0.3, 1, Math.min(0.2 + perf * 10, 0.8)) // Green
-                else color.setHSL(0.0, 1, Math.min(0.2 + Math.abs(perf) * 10, 0.8)) // Red
+                if (perf >= 0) {
+                    // Finviz Green Logic
+                    if (perf > 0.03) color.set('#16a34a') // Bright Green
+                    else if (perf > 0.01) color.set('#22c55e') // Medium
+                    else color.set('#4ade80') // Light
+                } else {
+                    // Finviz Red Logic
+                    if (perf < -0.03) color.set('#dc2626') // Deep Red
+                    else if (perf < -0.01) color.set('#ef4444') // Medium
+                    else color.set('#f87171') // Light
+                }
             } else if (colorMetric === 'yield') {
                 const yld = d.dividend_yield || 0
                 // Teal/Green for yield
