@@ -136,7 +136,7 @@ function CityscapeMesh({ leaves, heightMetric = 'pe', colorMetric = 'performance
                 onPointerOut={handlePointerOut}
             >
                 <boxGeometry />
-                <meshStandardMaterial metalness={0.5} roughness={0.4} />
+                <meshStandardMaterial metalness={0.1} roughness={0.9} />
             </instancedMesh>
 
             {hoveredInstance !== null && (
@@ -246,7 +246,7 @@ export default function MarketCityscape({ data, heightMetric = 'pe', colorMetric
 
         const layout = treemap<StockNode>()
             .size([100, 100])
-            .padding(0.1)
+            .padding(0.3) // Thicker gaps to simulate borders
             .round(true)(root)
 
         return layout.leaves()
@@ -255,18 +255,18 @@ export default function MarketCityscape({ data, heightMetric = 'pe', colorMetric
     return (
         <div className="w-full h-full min-h-[500px] bg-slate-950 rounded-xl overflow-hidden shadow-2xl border border-slate-800">
             <Canvas camera={{ position: [60, 60, 60], fov: 45 }}>
-                <ambientLight intensity={0.5} />
-                <pointLight position={[10, 10, 10]} intensity={1} />
-                <directionalLight position={[-10, 20, 5]} intensity={1.5} castShadow />
+                <ambientLight intensity={1.2} /> {/* Flatter, bright light */}
+                <pointLight position={[10, 10, 10]} intensity={0.5} />
+                <directionalLight position={[-10, 20, 5]} intensity={1.0} castShadow />
 
                 <group>
                     <CityscapeMesh leaves={leaves} heightMetric={heightMetric} colorMetric={colorMetric} />
                     <CityscapeLabels leaves={leaves} heightMetric={heightMetric} />
 
-                    {/* Ground Plane */}
+                    {/* Ground Plane - Pure Black for "Border" effect */}
                     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]}>
-                        <planeGeometry args={[120, 120]} />
-                        <meshStandardMaterial color="#1e293b" metalness={0.8} roughness={0.2} />
+                        <planeGeometry args={[150, 150]} />
+                        <meshStandardMaterial color="#000000" metalness={0.0} roughness={1.0} />
                     </mesh>
                 </group>
 
