@@ -2,7 +2,15 @@
 
 import React from 'react'
 import ReactECharts from 'echarts-for-react'
-import { StockNode } from './MarketCityscape'
+import { StockNode } from '@/types'
+
+/**
+ * MarketTreemap2D
+ * 
+ * Standard 2D Treemap visualization using ECharts.
+ * - Size: Market Cap
+ * - Color: Performance
+ */
 
 // Transform raw hierarchy to ECharts format
 function transformData(node: StockNode): any {
@@ -38,9 +46,17 @@ export default function MarketTreemap2D({ data }: { data: StockNode }) {
         tooltip: {
             formatter: function (info: any) {
                 const value = info.value;
+                // ECharts treemap value might be single number for non-leaf
+                const isArray = Array.isArray(value) && value.length >= 3;
+
+                if (!isArray) {
+                    return `<div class="font-bold">${info.name}</div>`;
+                }
+
                 const marketCap = (value[0] / 1e9).toFixed(1) + 'B';
                 const perf = (value[1] * 100).toFixed(2) + '%';
                 const pe = value[2].toFixed(1);
+
                 return [
                     `<div class="font-bold">${info.name}</div>`,
                     `Market Cap: $${marketCap}`,

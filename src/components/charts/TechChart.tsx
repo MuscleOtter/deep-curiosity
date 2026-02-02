@@ -1,17 +1,11 @@
 'use client'
 
 import React, { useEffect, useRef } from 'react'
-import { createChart, ColorType, IChartApi, Time } from 'lightweight-charts'
+import { createChart, ColorType, IChartApi, Time, CandlestickSeries, HistogramSeries, LineSeries } from 'lightweight-charts'
+import { ChartData } from '@/types'
 
 // --- Types ---
-export type ChartData = {
-    time: string // '2023-10-25'
-    open: number
-    high: number
-    low: number
-    close: number
-    volume: number
-}
+
 
 type TechChartProps = {
     ticker: string
@@ -30,6 +24,15 @@ function calculateSMA(data: ChartData[], count: number) {
 }
 
 // --- Component ---
+/**
+ * TechChart
+ * 
+ * Renders an interactive financial chart using Lightweight Charts.
+ * Features:
+ * - Candlestick Series (Price)
+ * - Volume Histogram (Overlay)
+ * - Simple Moving Averages (20, 50, 200)
+ */
 export default function TechChart({ ticker, data }: TechChartProps) {
     const chartContainerRef = useRef<HTMLDivElement>(null)
     const chartRef = useRef<IChartApi | null>(null)
@@ -63,7 +66,7 @@ export default function TechChart({ ticker, data }: TechChartProps) {
         chartRef.current = chart
 
         // 2. Candlestick Series
-        const candleSeries = chart.addCandlestickSeries({
+        const candleSeries = chart.addSeries(CandlestickSeries, {
             upColor: '#22c55e', // Green-500
             downColor: '#ef4444', // Red-500
             borderVisible: false,
@@ -75,7 +78,7 @@ export default function TechChart({ ticker, data }: TechChartProps) {
         )
 
         // 3. Volume Series (Histogram)
-        const volumeSeries = chart.addHistogramSeries({
+        const volumeSeries = chart.addSeries(HistogramSeries, {
             priceFormat: { type: 'volume' },
             priceScaleId: '', // Overlay on same scale but at bottom
             scaleMargins: {
@@ -93,15 +96,15 @@ export default function TechChart({ ticker, data }: TechChartProps) {
 
         // 4. SMA Overlays
         // SMA 20 (Yellow)
-        const sma20 = chart.addLineSeries({ color: '#eab308', lineWidth: 1 })
+        const sma20 = chart.addSeries(LineSeries, { color: '#eab308', lineWidth: 1 })
         sma20.setData(calculateSMA(data, 20) as any)
 
         // SMA 50 (Orange)
-        const sma50 = chart.addLineSeries({ color: '#f97316', lineWidth: 1 })
+        const sma50 = chart.addSeries(LineSeries, { color: '#f97316', lineWidth: 1 })
         sma50.setData(calculateSMA(data, 50) as any)
 
         // SMA 200 (Purple/Blue)
-        const sma200 = chart.addLineSeries({ color: '#3b82f6', lineWidth: 2 })
+        const sma200 = chart.addSeries(LineSeries, { color: '#3b82f6', lineWidth: 2 })
         sma200.setData(calculateSMA(data, 200) as any)
 
         // 5. Fit & Resize

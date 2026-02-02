@@ -5,17 +5,11 @@ import { Canvas, useFrame, ThreeEvent } from '@react-three/fiber'
 import { OrbitControls, Text, Billboard } from '@react-three/drei'
 import * as THREE from 'three'
 import { treemap, hierarchy, TreemapLayout } from 'd3-hierarchy'
+import { StockNode } from '@/types'
 
-// --- Types ---
-export type StockNode = {
-    name: string
-    ticker: string
-    value: number // Market Cap
-    performance: number // % Change
-    pe_ratio: number // Y-Axis
-    children?: StockNode[]
-}
-
+/**
+ * Props for MarketCityscape
+ */
 type MarketCityscapeProps = {
     data: StockNode
 }
@@ -24,7 +18,14 @@ type MarketCityscapeProps = {
 const BOX_SIZE = 0.9 // Gap between blocks
 const MAX_HEIGHT = 20 // Max height for P/E
 
-// --- Component ---
+/**
+ * CityscapeMesh
+ * 
+ * Renders the 3D Market Map using InstancedMesh for performance.
+ * - Layout: standard D3 Treemap (x, z coordinates)
+ * - Height: mapped to P/E Ratio (y coordinate)
+ * - Color: mapped to Performance (Green = positive, Red = negative)
+ */
 function CityscapeMesh({ data }: { data: StockNode }) {
     const meshRef = useRef<THREE.InstancedMesh>(null)
     const [hoveredInstance, setHovered] = useState<number | null>(null)

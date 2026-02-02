@@ -1,114 +1,64 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import MarketCityscape, { StockNode } from '@/components/MarketCityscape'
-import MarketTreemap2D from '@/components/MarketTreemap2D'
-import TechChart, { ChartData } from '@/components/TechChart'
-import { clsx, type ClassValue } from 'clsx'
-import { twMerge } from 'tailwind-merge'
-
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
-
-// --- Mock Data Generators ---
-const SECTORS = ['Technology', 'Healthcare', 'Finance', 'Consumer', 'Energy']
-const TICKERS = ['AAPL', 'MSFT', 'NVDA', 'AMZN', 'GOOGL', 'META', 'TSLA', 'JPM', 'V', 'LLY']
-
-function generateMockMapData(): StockNode {
-  return {
-    name: 'S&P 500',
-    ticker: 'SPX',
-    value: 10000000000000,
-    performance: 0,
-    pe_ratio: 0,
-    children: SECTORS.map((sector) => ({
-      name: sector,
-      ticker: sector.toUpperCase(),
-      value: Math.random() * 2000000000000 + 500000000000,
-      performance: (Math.random() - 0.5) * 0.05,
-      pe_ratio: 0,
-      children: Array.from({ length: 15 }).map((_, i) => ({
-        name: `Stock ${i}`,
-        ticker: TICKERS[i % TICKERS.length] || `STK${i}`,
-        value: Math.random() * 500000000000 + 10000000000,
-        performance: (Math.random() - 0.5) * 0.08, // -4% to +4%
-        pe_ratio: Math.random() * 50 + 5, // 5 to 55 P/E
-      })),
-    })),
-  }
-}
-
-function generateMockChartData(days = 100): ChartData[] {
-  let price = 150
-  const data: ChartData[] = []
-  const now = new Date()
-
-  for (let i = 0; i < days; i++) {
-    const time = new Date(now)
-    time.setDate(time.getDate() - (days - i))
-    const timeStr = time.toISOString().split('T')[0]
-
-    const volatility = 2
-    const change = (Math.random() - 0.5) * volatility
-    const open = price
-    const close = price + change
-    const high = Math.max(open, close) + Math.random() * 1
-    const low = Math.min(open, close) - Math.random() * 1
-    const volume = Math.floor(Math.random() * 1000000) + 500000
-
-    data.push({ time: timeStr, open, high, low, close, volume })
-    price = close
-  }
-  return data
-}
+import React from 'react'
+import MarketCityscape from '@/components/charts/MarketCityscape'
+import MarketTreemap2D from '@/components/charts/MarketTreemap2D'
+import TechChart from '@/components/charts/TechChart'
+import { cn } from '@/lib/utils'
+import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { useMarketData } from '@/hooks/useMarketData'
 
 // --- Components ---
+/**
+ * Dashboard
+ * 
+ * Main entry point for the Antigravity Terminal.
+ * - Layout: Bento Grid (CSS Grid)
+ * - State: Delegated to `useMarketData` hook (MVVM pattern).
+ * - Components: Orchestrates 3D/2D views and Technical Charts.
+ */
 export default function Dashboard() {
-  const [mapData, setMapData] = useState<StockNode | null>(null)
-  const [chartDataSPY, setChartDataSPY] = useState<ChartData[]>([])
-  const [chartDataQQQ, setChartDataQQQ] = useState<ChartData[]>([])
-  const [chartDataDIA, setChartDataDIA] = useState<ChartData[]>([])
-  const [viewMode, setViewMode] = useState<'3D' | '2D'>('3D')
+  const {
+    mapData,
+    chartDataSPY,
+    chartDataQQQ,
+    chartDataDIA,
+    watchlistData,
+    isLoading
+  } = useMarketData()
 
-  // Hydrate Data
-  useEffect(() => {
-    setMapData(generateMockMapData())
-    setChartDataSPY(generateMockChartData(200))
-    setChartDataQQQ(generateMockChartData(200))
-    setChartDataDIA(generateMockChartData(200))
-  }, [])
+  const [viewMode, setViewMode] = React.useState<'3D' | '2D'>('3D')
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-6 font-sans">
+    <main className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-6 font-sans relative overflow-hidden">
+      {/* Amorphic Background Blobs */}
+      <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none mix-blend-screen animate-pulse" />
+      <div className="absolute top-[10%] right-[0%] w-[40%] h-[40%] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none mix-blend-screen animate-pulse delay-1000" />
+      <div className="absolute -bottom-[20%] left-[20%] w-[60%] h-[40%] bg-emerald-600/10 rounded-full blur-[120px] pointer-events-none mix-blend-screen animate-pulse delay-2000" />
+
       {/* Header */}
-      <header className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <header className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-emerald-400 to-purple-400 bg-clip-text text-transparent drop-shadow-sm">
             ANTIGRAVITY <span className="text-slate-500 font-light">TERMINAL</span>
           </h1>
           <p className="text-slate-400 text-sm mt-1">Market Situational Awareness / v1.0.0</p>
         </div>
         <div className="flex gap-6 items-center w-full md:w-auto justify-between md:justify-end">
-          <div className="flex items-center gap-2 bg-slate-900 rounded-lg p-1 border border-slate-800">
-            <button
+          <div className="flex items-center gap-2 bg-slate-900/50 backdrop-blur-md rounded-lg p-1 border border-white/5 shadow-lg">
+            <Button
               onClick={() => setViewMode('3D')}
-              className={cn(
-                "px-3 py-1 rounded-md text-sm font-medium transition-all",
-                viewMode === '3D' ? "bg-blue-600 text-white shadow-lg" : "text-slate-400 hover:text-white"
-              )}
+              variant={viewMode === '3D' ? 'primary' : 'ghost'}
             >
               3D Immersive
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setViewMode('2D')}
-              className={cn(
-                "px-3 py-1 rounded-md text-sm font-medium transition-all",
-                viewMode === '2D' ? "bg-blue-600 text-white shadow-lg" : "text-slate-400 hover:text-white"
-              )}
+              variant={viewMode === '2D' ? 'primary' : 'ghost'}
             >
               2D Standard
-            </button>
+            </Button>
           </div>
 
           <div className="flex gap-4">
@@ -125,68 +75,71 @@ export default function Dashboard() {
       </header>
 
       {/* Bento Grid Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-[auto_auto] gap-6 max-w-[1920px] mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-[auto_auto] gap-6 max-w-[1920px] mx-auto relative z-10">
 
-        {/* Main Area: 3D Cityscape (Span 3 Cols, 2 Rows worth of height equivalent?) */}
-        {/* Actually Blueprint says: "Main Area (2x2)" implies a square-ish aspect. 
-            Let's make it span 3 columns and be tall. */}
+        {/* Main Area: 3D Cityscape */}
         <section className="col-span-1 md:col-span-3 h-[600px] relative group">
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/50 to-slate-950/50 backdrop-blur-md rounded-2xl border border-slate-800/50 -z-10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/40 to-slate-950/40 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl -z-10" />
 
-          <div className="h-full w-full p-1">
-            <div className="h-full w-full rounded-xl overflow-hidden relative">
-              <div className="absolute top-4 left-4 z-10 bg-black/40 backdrop-blur px-3 py-1 rounded-full border border-white/10 text-xs font-medium text-white shadow-lg pointer-events-none">
+          <div className="h-full w-full p-2">
+            <div className="h-full w-full rounded-2xl overflow-hidden relative border border-white/5">
+              <div className="absolute top-4 left-4 z-10 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 text-xs font-medium text-white shadow-lg pointer-events-none flex items-center gap-2">
+                <span className={`w-2 h-2 rounded-full ${viewMode === '3D' ? 'bg-blue-500' : 'bg-emarald-500'}`} />
                 {viewMode === '3D' ? 'Map Mode: P/E Ratio (Height) x Performance (Color)' : 'Map Mode: Size (Market Cap) x Performance (Color)'}
               </div>
-              {mapData ? (
+
+              {isLoading ? (
+                <div className="flex items-center justify-center h-full text-slate-500 animate-pulse">Loading Antigravity Engine...</div>
+              ) : mapData ? (
                 viewMode === '3D' ? (
                   <MarketCityscape data={mapData} />
                 ) : (
                   <MarketTreemap2D data={mapData} />
                 )
-              ) : (
-                <div className="flex items-center justify-center h-full text-slate-500 animate-pulse">Loading Antigravity Engine...</div>
-              )}
+              ) : null}
             </div>
           </div>
         </section>
 
-        {/* Right Column: News / Intel (Span 1 Col) */}
-        <section className="col-span-1 h-[600px] flex flex-col gap-4">
-          {/* Intel Card */}
-          <div className="flex-1 rounded-2xl border border-slate-800 bg-slate-900/40 backdrop-blur-sm p-4 overflow-hidden shadow-lg relative">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500" />
+        {/* Right Column: News / Intel */}
+        <section className="col-span-1 h-[600px] flex flex-col gap-6">
+          <Card className="flex-1 relative" title={undefined}>
+            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-50" />
             <h3 className="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+              </span>
               Market Intel
             </h3>
-            <div className="space-y-4 overflow-y-auto max-h-[220px] pr-2 scrollbar-thin scrollbar-thumb-slate-700">
+            <div className="space-y-4 overflow-y-auto max-h-[220px] pr-2 scrollbar-thin scrollbar-thumb-slate-700/50 scrollbar-track-transparent">
               {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="group cursor-pointer mb-3">
-                  <p className="text-xs text-slate-500 mb-1">2 mins ago • AI Summary</p>
-                  <h4 className="text-sm font-medium text-slate-300 group-hover:text-blue-400 transition-colors">
-                    Tech sector sees rotation into semi-conductors as NVDA breaks key resistance.
+                <div key={i} className="group cursor-pointer mb-3 p-2 rounded-lg hover:bg-white/5 transition-all border border-transparent hover:border-white/5">
+                  <p className="text-[10px] text-slate-500 mb-1 font-mono uppercase tracking-wider">2 mins ago • AI Summary</p>
+                  <h4 className="text-sm font-medium text-slate-300 group-hover:text-blue-300 transition-colors leading-snug">
+                    Tech sector sees rotation into semi-conductors as NVDA breaks key resistance levels.
                   </h4>
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
 
-          {/* Watchlist Card */}
-          <div className="flex-1 rounded-2xl border border-slate-800 bg-slate-900/40 backdrop-blur-sm p-4 shadow-lg overflow-hidden">
-            <h3 className="text-lg font-bold text-slate-200 mb-4">Watchlist</h3>
-            <div className="space-y-2 overflow-y-auto max-h-[220px] pr-2 scrollbar-thin scrollbar-thumb-slate-700">
-              {TICKERS.slice(0, 10).map((t) => (
-                <div key={t} className="flex justify-between items-center p-2 rounded hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/5">
-                  <span className="font-mono font-bold text-slate-300">{t}</span>
-                  <span className="font-mono text-emerald-400">+{(Math.random() * 2).toFixed(2)}%</span>
+          <Card className="flex-1" title="Watchlist">
+            <div className="space-y-1 overflow-y-auto max-h-[220px] pr-2 scrollbar-thin scrollbar-thumb-slate-700/50 scrollbar-track-transparent">
+              {watchlistData.map((t) => (
+                <div key={t.ticker} className="flex justify-between items-center p-3 rounded-lg hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/5 group">
+                  <span className="font-mono font-bold text-slate-300 group-hover:text-white">{t.ticker}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity">USD</span>
+                    <span className="font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded text-xs">+{t.change.toFixed(2)}%</span>
+                  </div>
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         </section>
 
-        {/* Bottom Row: Technical Charts (Span 4 Cols, Grid of 3) */}
+        {/* Bottom Row: Technical Charts */}
         <section className="col-span-1 md:col-span-4 grid grid-cols-1 md:grid-cols-3 gap-6">
           <TechChart ticker="SPY" data={chartDataSPY} />
           <TechChart ticker="QQQ" data={chartDataQQQ} />
