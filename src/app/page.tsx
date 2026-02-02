@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import MarketCityscape, { HeightMetric, ColorMetric } from '@/components/charts/MarketCityscape'
 import MarketTreemap2D from '@/components/charts/MarketTreemap2D'
+import CommodityBubbleChart from '@/components/charts/CommodityBubbleChart'
 import TechChart from '@/components/charts/TechChart'
 import { cn } from '@/lib/utils'
 import { Card } from '@/components/ui/Card'
@@ -113,7 +114,9 @@ export default function Dashboard() {
               {isLoading ? (
                 <div className="flex items-center justify-center h-full text-slate-500 animate-pulse">Loading Antigravity Engine...</div>
               ) : mapData ? (
-                viewMode === '3D' ? (
+                marketType === 'commodities' ? (
+                  <CommodityBubbleChart data={mapData} />
+                ) : viewMode === '3D' ? (
                   <MarketCityscape data={mapData} heightMetric={heightMetric} colorMetric={colorMetric} />
                 ) : (
                   <MarketTreemap2D data={mapData} />
