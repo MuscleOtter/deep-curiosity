@@ -80,6 +80,7 @@ export default function MarketTreemap2D({ data }: { data: StockNode }) {
         series: [
             {
                 type: 'treemap',
+                visualDimension: 0, // Use index 0 (Market Cap) for area size
                 visibleMin: 300,
                 roam: false, // Map view should be static typically
                 label: {
