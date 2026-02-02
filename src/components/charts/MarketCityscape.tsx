@@ -228,6 +228,8 @@ function HoverHighlight({ index, node, meshRef, metrics }: { index: number, node
                 <Text fontSize={2} color="white" anchorX="center" anchorY="bottom" outlineWidth={0.1} outlineColor="black">
                     {node.data.ticker}
                     {'\n'}
+                    <tspan fontSize={1.2} fill="#cbd5e1">{node.data.name || ''}</tspan>
+                    {'\n'}
                     {valueText}
                     {'\n'}
                     {heightText}
