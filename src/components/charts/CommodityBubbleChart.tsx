@@ -39,12 +39,13 @@ export default function CommodityBubbleChart({ data }: { data: StockNode }) {
                 points.push({
                     name: contract.ticker,
                     value: [
-                        contract.performance * 100,     // X: Perf %
-                        contract.relative_volume || 1,  // Y: R.Vol
-                        contract.value,                 // Size -> Radius
+                        contract.performance * 100,     // 0: Perf %
+                        contract.relative_volume || 1,  // 1: R.Vol
+                        contract.value,                 // 2: Size -> Radius
                         sectorName,                     // 3: Sector
                         contract.performance,           // 4: Raw Perf
-                        0                               // 5: Price Placeholder
+                        0,                              // 5: Price Placeholder
+                        contract.name                   // 6: Full Name
                     ],
                     itemStyle: {
                         color: color,
@@ -73,8 +74,9 @@ export default function CommodityBubbleChart({ data }: { data: StockNode }) {
             textStyle: { color: '#f1f5f9' },
             formatter: function (obj: any) {
                 const value = obj.value;
+                const fullName = value[6] || obj.name; // Use Full Name if available
                 return `
-                    <div style="font-weight:bold; font-size:14px; margin-bottom:4px;">${obj.name}</div>
+                    <div style="font-weight:bold; font-size:14px; margin-bottom:4px;">${fullName} <span style="font-weight:normal; color:#94a3b8">(${obj.name})</span></div>
                     <div style="font-size:12px; color:#cbd5e1;">${value[3]}</div>
                     <hr style="border-color:#334155; margin:5px 0;"/>
                     <div>Performance: <span style="color:${value[0] >= 0 ? '#4ade80' : '#f87171'}">${value[0].toFixed(2)}%</span></div>

@@ -17,6 +17,7 @@ function transformData(node: StockNode): any {
     const isLeaf = !node.children || node.children.length === 0
     return {
         name: isLeaf ? node.ticker : (node.name || node.ticker),
+        fullName: node.name, // Pass full name for tooltip
         value: [node.value, node.performance, node.pe_ratio], // Value array for dimensions
         itemStyle: {
             color: node.children ? undefined : (node.performance >= 0
@@ -64,9 +65,10 @@ export default function MarketTreemap2D({ data }: { data: StockNode }) {
                 const marketCap = (value[0] / 1e9).toFixed(1) + 'B';
                 const perf = (value[1] * 100).toFixed(2) + '%';
                 const pe = value[2].toFixed(1);
+                const fullName = info.data.fullName || info.name;
 
                 return [
-                    `<div class="font-bold border-b border-slate-600 pb-1 mb-1">${info.name}</div>`,
+                    `<div class="font-bold border-b border-slate-600 pb-1 mb-1">${fullName} <span class="text-slate-400 font-medium text-xs">(${info.name})</span></div>`,
                     `Market Cap: <span class="text-slate-300">$${marketCap}</span>`,
                     `Performance: <span class="${value[1] >= 0 ? 'text-green-400' : 'text-red-400'}">${perf}</span>`,
                     `P/E Ratio: <span class="text-slate-300">${pe}</span>`
