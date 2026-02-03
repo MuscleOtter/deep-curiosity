@@ -157,5 +157,11 @@ export default function MarketTreemap2D({ data }: { data: StockNode }) {
         ]
     };
 
-    return <ReactECharts option={option} style={{ height: '100%', width: '100%' }} />
+    return <ReactECharts
+        option={option}
+        style={{ height: '100%', width: '100%' }}
+        onEvents={{
+            click: (e) => { console.log('Treemap clicked', e.name) }
+        }}
+    />
 }
