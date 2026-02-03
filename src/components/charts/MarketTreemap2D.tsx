@@ -161,7 +161,7 @@ export default function MarketTreemap2D({ data }: { data: StockNode }) {
         option={option}
         style={{ height: '100%', width: '100%' }}
         onEvents={{
-            click: (e) => { console.log('Treemap clicked', e.name) }
+            click: (e: any) => { console.log('Treemap clicked', e.name) }
         }}
     />
 }

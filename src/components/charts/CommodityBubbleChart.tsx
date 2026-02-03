@@ -153,7 +153,7 @@ export default function CommodityBubbleChart({ data }: { data: StockNode }) {
         option={option}
         style={{ height: '100%', width: '100%' }}
         onEvents={{
-            click: (e) => { console.log('Bubble clicked', e.name) }
+            click: (e: any) => { console.log('Bubble clicked', e.name) }
         }}
     />
 }
