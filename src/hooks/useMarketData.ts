@@ -20,6 +20,7 @@ export function useMarketData() {
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
+        setMapData(null) // Clear data to prevent type mismatch during switch
         const loadData = async () => {
             setIsLoading(true)
             try {

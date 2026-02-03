@@ -119,7 +119,8 @@ export default function CommodityBubbleChart({ data }: { data: StockNode }) {
                 symbolSize: function (data: any) {
                     // Map value (billions) to radius (10-50px)
                     // Log scale for better distribution
-                    return Math.max(Math.log(data[2]) * 1.5 - 30, 10);
+                    const val = data[2] || 1000000000; // Fallback to avoid NaN/Infinity
+                    return Math.max(Math.log(val) * 1.5 - 30, 10);
                 },
                 data: scatterData,
                 label: {
